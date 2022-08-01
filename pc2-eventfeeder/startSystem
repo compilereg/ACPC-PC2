@@ -1,0 +1,82 @@
+#!/bin/bash
+### starts the pc2 component based on launched container.
+### SET Variable PC2COMPONENT to any value of (SERVER/SCOREBOARD/EVENTFEEDER/JUDGE)
+PC2COMPONENT="EVENTFEEDER"
+case ${PC2COMPONENT} in
+	"SERVER")
+			FILENAME="server"
+			;;
+	"SCOREBOARD")
+			FILENAME="board"
+			;;
+	"EVENTFEEDER")
+			FILENAME="ef"
+			;;
+	"JUDGE")
+			FILENAME="judge"
+			;;
+esac
+
+### The environment variables
+###XMX_VAR : Max XMX to be used in the component launch
+###PC2IP_VAR: IP of the PC2 server, 
+###			if the container is pc2 server, the IP will be the remoteServer, otherwise use server directives in pc2v9.ini
+
+
+
+### 1-Check for file 1strun is found or no, if found modify the system values.
+### 2-Start the PC2 component
+if [ -f /1strun ]
+then
+	#### Replace all env variables
+	###1-Replace XMX
+	if [ ! -z ${XMX_VAR} ]
+	then
+		sed  -i "s/^JAVA64BIT_HEAPSIZE.*/JAVA64BIT_HEAPSIZE=${XMX_VAR}/g" /usr/local/pc2/bin/pc2${FILENAME}
+	fi
+	###2-Replace PC2 server IP
+	if [ ! -z ${PC2IP_VAR}  ]
+	then
+		if [ ${PC2COMPONENT} == "SERVER" ]
+		then
+			sed -i "s/^#remoteServer.*/remoteServer=${PC2IP_VAR}/g" /usr/local/pc2/pc2v9.ini
+		else
+			sed -i "s/^server.*/server=${PC2IP_VAR}/g" /usr/local/pc2/pc2v9.ini
+		fi
+	fi
+	ENABLESCOREBOARD=${ENABLESCOREBOARD_VAR:="yes"}
+	EVPORT=${EVENTFEEDERPORT_VAR:="50443"}
+	ENABLETEAMS=${ENABLETEAMS_VAR:="yes"}
+	ENABLESTARTTIME=${ENABLESTARTTIME_VAR:="yes"}
+	ENABLELANGUAGES=${ENABLELANGUAGES_VAR:="yes"}
+	ENABLEPROBLEMS=${ENABLEPROBLEMS_VAR:="yes"}
+	ENABLEFETCHRUN=${ENABLEFETCHRUN_VAR:="yes"}
+	echo "enableScoreboard=${ENABLESCOREBOARD}" > /usr/local/pc2/pc2ws.properties
+	echo "port=${EVPORT}" >> /usr/local/pc2/pc2ws.properties
+	echo "enableTeams=${ENABLETEAMS}" >> /usr/local/pc2/pc2ws.properties
+	echo "enableStartTime=${ENABLESTARTTIME}" >> /usr/local/pc2/pc2ws.properties
+	echo "enableLanguages=${ENABLELANGUAGES}" >> /usr/local/pc2/pc2ws.properties
+	echo "enableProblems=${ENABLEPROBLEMS}" >> /usr/local/pc2/pc2ws.properties
+	echo "enableFetchRun=${ENABLEFETCHRUN}" >> /usr/local/pc2/pc2ws.properties
+	rm /1strun
+fi
+
+#Generate the total EXTRAS parameters
+EXTRAS=""
+if [ ${#} -gt 0 ]
+then
+        for i in $(seq 1 ${#})
+                do
+                        if [ ${i} -eq 1 ]
+                        then
+                                EXTRAS="${1}"
+                        else
+                                EXTRAS="${EXTRAS} ${1}"
+                        fi
+                        shift
+                done
+                echo "${EXTRAS}"
+fi
+
+cd /usr/local/pc2
+bin/pc2${FILENAME} --nogui --ini pc2v9.ini ${EXTRAS}
