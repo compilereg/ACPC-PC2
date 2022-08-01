@@ -10,6 +10,7 @@ services:
                   EXTRAS: "--login ef1"
                   XMX_VAR: "7G"
                   PC2IP_VAR: "172.20.16.10:50002"
+                  ### used by pc2ws.properties
                   #ENABLESCOREBOARD_VAR: "yes"
                   #EVENTFEEDERPORT_VAR: "50443"
                   #ENABLETEAMS_VAR: "yes"
