@@ -1,0 +1,17 @@
+#!/bin/bash
+
+EXTRAS=""
+if [ ${#} -gt 0 ]
+then
+	for i in $(seq 1 ${#})
+		do
+			if [ ${i} -eq 1 ]
+			then
+				EXTRAS="${1}"
+			else
+				EXTRAS="${EXTRAS} ${1}"
+			fi
+			shift
+		done
+		echo "${EXTRAS}"
+fi

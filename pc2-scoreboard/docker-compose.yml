@@ -1,0 +1,14 @@
+####sudo docker run -d -p 50002:50002 -e EXTRAS="--login s1 --contestpassword contest" -v /home/control/pc2datadir:/pc2data --name mypc2 pc2server
+#sudo docker-compose up -d
+#sudo docker-compose down
+version: "3.3"  # optional since v1.27.0
+services:
+  pc2server:
+          container_name: myscoreboard
+          image: pc2scoreboard
+          environment:
+                  EXTRAS: "--login b1"
+                  PC2IP_VAR: "172.20.16.10:50002"
+                  XMX_VAR: "7G"
+          volumes:
+                  - /home/control/pc2datadir_sb:/pc2data
